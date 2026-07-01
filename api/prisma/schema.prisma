@@ -5,6 +5,8 @@
 // Prisma 7 note: the connection URL lives in `prisma.config.ts`, not here.
 // Docs: https://www.prisma.io/docs
 
+// api/prisma/schema.prisma
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -13,19 +15,37 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-model Answers {
-  answer_id String  @id @db.Uuid
-  game_id   String?
-  username  String?
-  answer    String?
-  Game      Game    @relation(fields: [answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_answer_id")
-}
 
 model Game {
-  id        String   @id @db.Uuid
-  room_code String?
-  letter    String?  @db.Char
-  topic     String?
-  Answers   Answers?
+  id          String   @id @default(cuid())
+  roomCode    String   @unique
+  currentName String?   // The current celebrity name in the chain
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  players     Player[]
+  celebrities Celebrity[]
 }
 
+model Player {
+  id        String   @id @default(cuid())
+  username  String
+  score     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
+}
+
+model Celebrity {
+  id        String   @id @default(cuid())
+  name      String
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  game   Game   @relation(fields: [gameId], references: [id])
+  gameId String
+
+  @@unique([gameId, name])  // Same name can't be used twice in one game
+}
