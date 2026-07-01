@@ -13,5 +13,19 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+model Answers {
+  answer_id String  @id @db.Uuid
+  game_id   String?
+  username  String?
+  answer    String?
+  Game      Game    @relation(fields: [answer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_answer_id")
+}
 
+model Game {
+  id        String   @id @db.Uuid
+  room_code String?
+  letter    String?  @db.Char
+  topic     String?
+  Answers   Answers?
+}
 // TODO: add your models below (for example, a Game and its Answers).
