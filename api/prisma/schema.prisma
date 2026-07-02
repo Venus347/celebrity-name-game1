@@ -17,7 +17,7 @@ datasource db {
 }
 
 model Game {
-  id          String   @id @default(cuid())
+  id           String   @id @default(cuid())
   roomCode    String   @unique
   currentName String?   // The current celebrity name in the chain
   createdAt   DateTime @default(now())

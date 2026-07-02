@@ -3,10 +3,8 @@ import express from "express";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import fs from 'fs';
-import { stringify } from "querystring";
 
 //Imports celebrity names from a json file and maps them onto an array
-
 const filePath: string = 'celeb_names.json';
 const a = fs.readFileSync(filePath, 'utf8');
 interface celeb{
@@ -24,24 +22,41 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({adapter});
 app.use(express.json());
-const PORT = 8080;
+const PORT = 3000;
 
 
 function getRoomCode() {
-  let userID = "Room_";
+  let roomID = "Room_";
   for (let i = 0; i < 7;i++){
-    userID += Math.random()*10;
+    roomID += String(Math.floor(Math.random()*10));
   }
+  return roomID;
 }
 
+function getPlayerID(){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let playerID = "";
+  for (let i = 0; i<7; i++){
+    playerID += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return playerID;
+}
 function getCelebName() {
-  return names[Math.floor(Math.random() * WebTransportBidirectionalStream.length)];
+  return names[Math.floor(Math.random() * names.length)];
 };
 
 app.post('/games', async (req, res) => {
   try{
+    const player_id = getPlayerID();
     const room_code = getRoomCode();
     const celeb_name = getCelebName();
+    const game = await prisma.game.create({
+      data: {
+        roomCode: room_code,
+        currentName: celeb_name,
+      }
+    })
+    return res.json(game);
   } catch(error){
     return res.status(500).json({
       message: "Error: failed to start game."
@@ -50,6 +65,8 @@ app.post('/games', async (req, res) => {
 });
 
 
-app.listen(3000, () => {
+app.listen(PORT, () => {
   console.log('server has started');
 })
+
+
