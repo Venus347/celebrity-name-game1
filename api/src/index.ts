@@ -3,22 +3,19 @@ import express from "express";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import fs from 'fs';
-import csvParser from 'csv-parser';
+import { stringify } from "querystring";
 
-type RowData = {
-  Name: string;
+//Imports celebrity names from a json file and maps them onto an array
+
+const filePath: string = 'celeb_names.json';
+const a = fs.readFileSync(filePath, 'utf8');
+interface celeb{
+  name: string;
 }
-const filePath: string = 'celeb_names1.csv';
-const names: string[] = [];
-
-fs.createReadStream(filePath)
-  .pipe(csvParser())
-  .on('data', (row: RowData) => {
-    names.push(row.Name);
-  })
-  .on('end', () => {
-    console.log(names);
-  });
+const data: celeb = JSON.parse(a);
+const output = Object.values(data).map(x => x);
+const names: string[] = output.map(x => x.name);
+console.log(names[0]);
 
 
 const app = express(); 
@@ -27,7 +24,7 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({adapter});
 app.use(express.json());
-const PORT = 5432;
+const PORT = 8080;
 
 
 function getRoomCode() {
@@ -36,4 +33,23 @@ function getRoomCode() {
     userID += Math.random()*10;
   }
 }
-//function getCelebNames() {}
+
+function getCelebName() {
+  return names[Math.floor(Math.random() * WebTransportBidirectionalStream.length)];
+};
+
+app.post('/games', async (req, res) => {
+  try{
+    const room_code = getRoomCode();
+    const celeb_name = getCelebName();
+  } catch(error){
+    return res.status(500).json({
+      message: "Error: failed to start game."
+    })
+  }
+});
+
+
+app.listen(3000, () => {
+  console.log('server has started');
+})
