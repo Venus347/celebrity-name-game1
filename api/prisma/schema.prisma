@@ -17,35 +17,20 @@ datasource db {
 }
 
 model Game {
-  id           String   @id @default(cuid())
-  roomCode    String   @unique
-  currentName String?   // The current celebrity name in the chain
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  players     Player[]
-  celebrities Celebrity[]
+  roomCode    String   @id 
+  currentName String?   
+  players     String[]
+  celebrity_answers String[]
 }
 
 model Player {
-  id        String   @id @default(cuid())
+  id        String   @id 
   username  String
   score     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  game   Game   @relation(fields: [gameId], references: [id])
-  gameId String
 }
 
 model Celebrity {
   id        String   @id @default(cuid())
   name      String
   used      Boolean  @default(false)
-  createdAt DateTime @default(now())
-
-  game   Game   @relation(fields: [gameId], references: [id])
-  gameId String
-
-  @@unique([gameId, name])  // Same name can't be used twice in one game
 }

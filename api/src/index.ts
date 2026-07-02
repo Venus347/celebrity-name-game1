@@ -45,23 +45,33 @@ function getCelebName() {
   return names[Math.floor(Math.random() * names.length)];
 };
 
+
 app.post('/games', async (req, res) => {
   try{
     const player_id = getPlayerID();
     const room_code = getRoomCode();
     const celeb_name = getCelebName();
+    let players : string[] = [];
+    players.push(player_id)
+
     const game = await prisma.game.create({
       data: {
         roomCode: room_code,
         currentName: celeb_name,
+        players: players
       }
     })
     return res.json(game);
   } catch(error){
+    if (error instanceof Error){
+      console.log(error.message);
+    }
     return res.status(500).json({
-      message: "Error: failed to start game."
+      message: "Error: failed to start game.",
     })
   }
+});
+app.get('/games', async (req, res) => {
 });
 
 
