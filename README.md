@@ -1,73 +1,154 @@
-# Celebrity Name Chain — Starter
+# Celebrity Name Chain
 
-Boilerplate for the **Celebrity Name Chain** full-stack group project
-(CityTech TTP 2026 Summer). See the
-[project spec](https://github.com/jonathan-chin/citytech-ttpr-2026-summer/blob/main/project_specs/celebrity-name-chain.md)
-for the game rules, routes, and requirements.
+A full-stack multiplayer party game where players chain celebrity names. Built with Express, Prisma 7, PostgreSQL, and Ionic React.
 
-```text
-├── api/     # Express + Prisma + PostgreSQL game server (TypeScript)
-├── client/  # Ionic React app (React Hook Form + TanStack Query)
-├── data/    # database dump (dump.sql) to share between teammates
-└── README.md
+---
+
+## 🧩 Project Status
+
+| Component | Status |
+|-----------|--------|
+| Prisma Schema | ✅ Complete (`Game`, `Player`, `Celebrity`) |
+| Database Migration | ✅ Applied and tested |
+| SQL Dump | ✅ Generated and committed |
+| Express Routes | ⏳ In progress |
+| Frontend (Ionic) | ⏳ In progress |
+
+---
+
+## 📁 Repository Structure
+
+```
+celebrity-name-game1/
+├── api/                 # Express + Prisma + PostgreSQL game server
+│   ├── prisma/
+│   │   ├── schema.prisma       # Database models
+│   │   └── migrations/         # Migration history
+│   ├── src/             # TypeScript source code
+│   ├── .env.example     # Environment variables template
+│   └── package.json     # Dependencies and scripts
+├── client/              # Ionic React frontend
+├── data/                # Database dump (dump.sql)
+├── Sample_README.md     # This file (template for main README)
+└── README.md            # Main documentation
 ```
 
-## Using this repo
+---
 
-Click **"Use this template"** on GitHub (not Fork). **One** teammate creates
-the repo, then **adds the others as collaborators**. One team = one repo.
+## 🚀 Local Setup
 
-## Prerequisites
+### Prerequisites
 
-- **Node 22+** and **Yarn 4** (via Corepack: `corepack enable`)
-- **PostgreSQL** running locally
-- **ngrok** (only needed to play together across machines)
+- **Node.js** 22+ (use `nvm install 22`)
+- **Yarn** 4 (run `corepack enable`)
+- **PostgreSQL** 14+ (running locally)
 
-### Node version (nvm)
-
-Make sure you're on Node 22 before installing anything:
-
-```bash
-node --version        # check your current version
-nvm install 22        # install Node 22 (if you don't have it)
-nvm use 22            # use it in this shell
-nvm alias default 22  # optional: make Node 22 your default
-```
-
-## 1. API (backend)
+### Backend (`api/`)
 
 ```bash
 cd api
 yarn install
-cp .env.example .env      # then edit .env (see below)
-yarn prisma:migrate       # create tables + generate the Prisma client
-yarn dev                  # http://localhost:3000  (GET /health -> { "ok": true })
+cp .env.example .env
 ```
 
-**Edit `.env`** and set `DATABASE_URL` to your local PostgreSQL connection
-before running `yarn prisma:migrate`.
+Edit `.env` and set your database URL:
 
-More detail (scripts, Prisma 7 workflow) is in [`api/README.md`](api/README.md).
+```
+DATABASE_URL="postgresql://postgres:your_password@localhost:5432/celebrity_db"
+```
 
-## 2. Client (frontend)
+Apply the schema:
+
+```bash
+yarn prisma:migrate dev
+```
+
+Start the server:
+
+```bash
+yarn dev
+```
+
+Test: `GET http://localhost:3000/health` → `{ "ok": true }`
+
+### Frontend (`client/`)
 
 ```bash
 cd client
 yarn install
-cp .env.example .env      # then edit .env (see below)
-yarn dev                  # open the Ionic app in your browser (or: ionic serve)
+cp .env.example .env
 ```
 
-**Edit `.env`** and set `VITE_API_URL` to point at your API (defaults to
-`http://localhost:3000`; use your ngrok URL when playing together).
+Edit `.env` and set the API URL:
 
-## 3. Play together
+```
+VITE_API_URL=http://localhost:3000
+```
 
-Expose the API with ngrok and share the public URL; each player sets their
-client's `VITE_API_URL` to it:
+Start the app:
 
 ```bash
-ngrok http 3000
+yarn dev
 ```
 
-Expose the **API**, never your database directly.
+The app will be available at `http://localhost:8100`.
+
+---
+
+## 🧪 Database
+
+### Restore from Dump
+
+```bash
+createdb celebrity_db
+psql -d celebrity_db < data/dump.sql
+```
+
+### Generate a Fresh Dump
+
+```bash
+pg_dump -h localhost -U postgres -W -d celebrity_db > data/dump.sql
+```
+
+---
+
+## 🤖 AI Disclosure
+
+**This project was developed with assistance from AI tools.**
+
+| Tool               | Role                                                                                             | Used By:         |
+| ------------------ | ------------------------------------------------------------------------------------------------ | ---------------- |
+| **DeepSeek (Des)** | Planning, code structure, debugging support, and documentation for the Prisma schema and README. | Julio A. Alvarez |
+
+All final decisions, code implementation, and testing were completed by the project team. AI was used as a learning and productivity aid, not as a replacement for understanding.
+
+---
+
+## 📝 Team Members
+
+| Name              | GitHub          | Role                              |
+| ----------------- | --------------- | --------------------------------- |
+| Jake              | `Venus347`      | Team Lead / Backend / Express API |
+| Justice Kirton    | `Justicekirton` | Frontend / Ionic                  |
+| Julio A. Alvarez  | `JulioAAlvarez` | Database / Prisma Schema          |
+
+---
+
+## 📚 Resources
+
+- [Professor's Sample Repo](https://github.com/jonathan-chin/citytech-ttpr-2026-summer-celebrity-name-chain)
+- [Prisma 7 Docs](https://www.prisma.io/docs/orm)
+- [Ionic React Docs](https://ionicframework.com/docs/react)
+
+---
+
+## 📌 Next Steps
+
+- [ ] Build Express routes: `POST /games`, `POST /players`, `POST /moves`
+- [ ] Connect frontend to API
+- [ ] Test with ngrok
+- [ ] Finalize and submit
+
+---
+
+**Made with 💻 and ☕ by the Celebrity Name Chain team.**
