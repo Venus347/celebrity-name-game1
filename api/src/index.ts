@@ -1,25 +1,82 @@
 import "dotenv/config";
 import express from "express";
+import { PrismaClient } from "./generated/prisma/client.js";
+import { PrismaPg } from "@prisma/adapter-pg";
+import fs from 'fs';
 
-const app = express();
+//Imports celebrity names from a json file and maps them onto an array
+const filePath: string = 'celeb_names.json';
+const a = fs.readFileSync(filePath, 'utf8');
+interface celeb{
+  name: string;
+}
+const data: celeb = JSON.parse(a);
+const output = Object.values(data).map(x => x);
+const names: string[] = output.map(x => x.name);
+console.log(names[0]);
+
+
+const app = express(); 
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL,
+});
+const prisma = new PrismaClient({adapter});
 app.use(express.json());
+const PORT = 3000;
 
-const PORT = process.env.PORT ?? 3000;
 
-// Health check — confirms the server is running.
-app.get("/health", (_req, res) => {
-  res.json({ ok: true });
+function getRoomCode() {
+  let roomID = "Room_";
+  for (let i = 0; i < 7;i++){
+    roomID += String(Math.floor(Math.random()*10));
+  }
+  return roomID;
+}
+
+function getPlayerID(){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let playerID = "";
+  for (let i = 0; i<7; i++){
+    playerID += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return playerID;
+}
+function getCelebName() {
+  return names[Math.floor(Math.random() * names.length)];
+};
+
+
+app.post('/games', async (req, res) => {
+  try{
+    const player_id = getPlayerID();
+    const room_code = getRoomCode();
+    const celeb_name = getCelebName();
+    let players : string[] = [];
+    players.push(player_id)
+
+    const game = await prisma.game.create({
+      data: {
+        roomCode: room_code,
+        currentName: celeb_name,
+        players: players
+      }
+    })
+    return res.json(game);
+  } catch(error){
+    if (error instanceof Error){
+      console.log(error.message);
+    }
+    return res.status(500).json({
+      message: "Error: failed to start game.",
+    })
+  }
+});
+app.get('/games', async (req, res) => {
 });
 
-// TODO: implement the game routes (see the project spec):
-//   POST /games          { roomCode, celebrity }          -> start a game
-//   GET  /games/:roomCode                                 -> most recent celebrity name
-//   POST /answers        { roomCode, username, answer }   -> submit an answer
-//
-// To talk to the database, run `yarn prisma:migrate` first (generates the
-// client into src/generated/prisma), then wire it up with the pg adapter.
-// See this API's README ("Using Prisma in code") for the exact db.ts snippet.
 
 app.listen(PORT, () => {
-  console.log(`API listening on http://localhost:${PORT}`);
-});
+  console.log('server has started');
+})
+
+
