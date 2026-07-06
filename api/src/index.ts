@@ -4,22 +4,90 @@ import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import fs from 'fs';
 import csvParser from 'csv-parser';
-import gamesRouter from './routes/games.js';  // ✅ Add this import
 
-// Array to store celebrity names (moved to top)
-const names: string[] = [];
+//Imports celebrity names from a json file and maps them onto an array
+const filePath: string = 'celeb_names.json';
+const a = fs.readFileSync(filePath, 'utf8');
+interface celeb{
+  name: string;
+}
+const data: celeb = JSON.parse(a);
+const output = Object.values(data).map(x => x);
+const names: string[] = output.map(x => x.name);
+console.log(names[0]);
 
-const app = express();
+
+const app = express(); 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({adapter});
 app.use(express.json());
-app.use('/api', gamesRouter);  // ✅ Now gamesRouter is imported
+app.use('/api', gamesRouter);
 const PORT = 3000;
 
-// Load CSV
+
+function getRoomCode() {
+  let roomID = "Room_";
+  for (let i = 0; i < 7;i++){
+    roomID += String(Math.floor(Math.random()*10));
+  }
+  return roomID;
+}
+
+function getPlayerID(){
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  let playerID = "";
+  for (let i = 0; i<7; i++){
+    playerID += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return playerID;
+}
+function getCelebName() {
+  return names[Math.floor(Math.random() * names.length)];
+};
+
+
+app.post('/games', async (req, res) => {
+  try{
+    const player_id = getPlayerID();
+    const room_code = getRoomCode();
+    const celeb_name = getCelebName();
+    let players : string[] = [];
+    players.push(player_id)
+
+    const game = await prisma.game.create({
+      data: {
+        roomCode: room_code,
+        currentName: celeb_name,
+        players: players
+      }
+    })
+    return res.json(game);
+  } catch(error){
+    if (error instanceof Error){
+      console.log(error.message);
+    }
+    return res.status(500).json({
+      message: "Error: failed to start game.",
+    })
+  }
+});
+app.get('/games', async (req, res) => {
+});
+
+app.get('/', (req, res) => {
+  res.json({ message: 'Celebrity Name Chain API is running' });
+});
+
+app.listen(PORT, () => {
+  console.log('server has started');
+})
+
+
 const filePath: string = 'src/celeb_names1.csv';
+const names: string[] = [];
+
 fs.createReadStream(filePath)
   .pipe(csvParser())
   .on('data', (row: { NAME: string }) => {
@@ -28,65 +96,3 @@ fs.createReadStream(filePath)
   .on('end', () => {
     console.log(`✅ Loaded ${names.length} celebrity names`);
   });
-
-// Helper functions
-function getRoomCode() {
-  let roomID = "Room_";
-  for (let i = 0; i < 7; i++) {
-    roomID += String(Math.floor(Math.random() * 10));
-  }
-  return roomID;
-}
-
-function getPlayerID() {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let playerID = "";
-  for (let i = 0; i < 7; i++) {
-    playerID += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return playerID;
-}
-
-function getCelebName() {
-  return names[Math.floor(Math.random() * names.length)];
-}
-
-// Routes
-app.post('/games', async (req, res) => {
-  try {
-    const player_id = getPlayerID();
-    const room_code = getRoomCode();
-    const celeb_name = getCelebName();
-    let players: string[] = [];
-    players.push(player_id);
-
-    const game = await prisma.game.create({
-      data: {
-        roomCode: room_code,
-        currentName: celeb_name,
-        players: players
-      }
-    });
-    return res.json(game);
-  } catch (error) {
-    if (error instanceof Error) {
-      console.log(error.message);
-    }
-    return res.status(500).json({
-      message: "Error: failed to start game.",
-    });
-  }
-});
-
-app.get('/games', async (req, res) => {
-  // TODO: Add logic to get all games
-  res.json({ message: 'GET /games - coming soon' });
-});
-
-app.get('/', (req, res) => {
-  res.json({ message: 'Celebrity Name Chain API is running' });
-});
-
-app.listen(PORT, () => {
-  console.log('🚀 Server running on http://localhost:3000');
-});
