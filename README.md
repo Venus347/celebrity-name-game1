@@ -11,8 +11,9 @@ A full-stack multiplayer party game where players chain celebrity names. Built w
 | Prisma Schema | ✅ Complete (`Game`, `Player`, `Celebrity`) |
 | Database Migration | ✅ Applied and tested |
 | SQL Dump | ✅ Generated and committed |
-| Express Routes | ⏳ In progress |
-| Frontend (Ionic) | ⏳ In progress |
+| Express Routes | ✅ `POST /api/games` working |
+| Frontend (Ionic) | ✅ Running |
+| Full-Stack Connection | 🔄 In progress |
 
 ---
 
@@ -29,7 +30,6 @@ celebrity-name-game1/
 │   └── package.json     # Dependencies and scripts
 ├── client/              # Ionic React frontend
 ├── data/                # Database dump (dump.sql)
-├── Sample_README.md     # This file (template for main README)
 └── README.md            # Main documentation
 ```
 
@@ -114,23 +114,25 @@ pg_dump -h localhost -U postgres -W -d celebrity_db > data/dump.sql
 
 ## 🤖 AI Disclosure
 
-**This project was developed with assistance from AI tools.**
+This project was developed with the assistance of AI tools. Each team member's usage is disclosed below:
 
-| Tool               | Role                                                                                             | Used By:         |
-| ------------------ | ------------------------------------------------------------------------------------------------ | ---------------- |
-| **DeepSeek (Des)** | Planning, code structure, debugging support, and documentation for the Prisma schema and README. | Julio A. Alvarez |
+| Team Member | AI Tool Used | Role |
+|-------------|--------------|------|
+| Julio A. Alvarez | DeepSeek (Des) | Prisma schema design, debugging support, documentation, and README structure |
+| Jake | None | Built backend and API integration independently |
+| Justice Kirton | Copilot | Frontend UI components and form handling |
 
-All final decisions, code implementation, and testing were completed by the project team. AI was used as a learning and productivity aid, not as a replacement for understanding.
+All final decisions, code implementation, and testing were completed by the project team. AI was used as a learning and productivity aid.
 
 ---
 
 ## 📝 Team Members
 
-| Name              | GitHub          | Role                              |
-| ----------------- | --------------- | --------------------------------- |
-| Jake              | `Venus347`      | Team Lead / Backend / Express API |
-| Justice Kirton    | `Justicekirton` | Frontend / Ionic                  |
-| Julio A. Alvarez  | `JulioAAlvarez` | Database / Prisma Schema          |
+| Name | GitHub | Role |
+|------|--------|------|
+| Jake | `Venus347` | Team Lead / Backend / Express API |
+| Justice Kirton | `Justicekirton` | Frontend / Ionic |
+| Julio A. Alvarez | `JulioAAlvarez` | Database / Prisma Schema |
 
 ---
 
@@ -144,10 +146,11 @@ All final decisions, code implementation, and testing were completed by the proj
 
 ## 📌 Next Steps
 
-- [ ] Build Express routes: `POST /games`, `POST /players`, `POST /moves`
-- [ ] Connect frontend to API
-- [ ] Test with ngrok
-- [ ] Finalize and submit
+- [ ] Merge `merge/backend-frontend` to `main`
+- [ ] Connect frontend to backend (axios/fetch)
+- [ ] Add remaining game routes (`POST /players`, `GET /games`)
+- [ ] Implement real game logic (turn management, score tracking)
+- [ ] Deploy or present final product
 
 ---
 
