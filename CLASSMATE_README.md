@@ -120,3 +120,53 @@ This cleanup was possible because we kept a **safe copy (`prod` folder)** and wo
 **Made with 💻 and ☕ by the Celebrity Name Chain team.**
 
 *Document generated on July 6, 2026.*
+
+---
+
+## What's Next (My Suggestions)
+
+Now that the foundation is solid, here's what I'd prioritize:
+
+### 1. Connect Frontend to Backend (Highest Priority)
+- Use `axios` or `fetch` to call your API from the Ionic app
+- Display real data from the backend (not mock responses)
+- Test the full flow: frontend → backend → database
+
+### 2. Replace Mock Responses with Real Database Logic
+- Update `POST /api/games` to actually save to the database using Prisma
+- Add `GET /games` to fetch all games from the database
+
+### 3. Add Remaining Game Routes
+- `POST /players` — join a game
+- `POST /moves` — submit a celebrity name
+- `GET /game/:id` — get current game state
+
+### 4. Implement Game Logic
+- Turn management (whose turn is it?)
+- Validation (does the name start with the correct letter?)
+- Score tracking
+
+### 5. Polish & Deploy
+- Add error handling and loading states in the frontend
+- Test with ngrok so teammates can play together
+- Final review and presentation prep
+
+---
+
+## Quick Start for Next Session
+
+```bash
+# Pull the latest
+cd ~/<Whereever your code is saved at>
+git checkout main
+git pull origin main
+
+# Start the backend
+cd api
+yarn dev
+
+# Start the frontend (new terminal)
+cd ../client
+yarn dev
+```
+
