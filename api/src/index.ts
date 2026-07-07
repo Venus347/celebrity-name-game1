@@ -3,7 +3,6 @@ import express from "express";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import fs from 'fs';
-import csvParser from 'csv-parser';
 
 //Imports celebrity names from a json file and maps them onto an array
 const filePath: string = 'celeb_names.json';
@@ -23,7 +22,6 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({adapter});
 app.use(express.json());
-app.use('/api', gamesRouter);
 const PORT = 3000;
 
 
@@ -73,26 +71,14 @@ app.post('/games', async (req, res) => {
     })
   }
 });
-app.get('/games', async (req, res) => {
+app.get('/games/join/:room_id', async (req, res) => {
+  const room = String(req.params.room_id);
+  
 });
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Celebrity Name Chain API is running' });
-});
 
 app.listen(PORT, () => {
   console.log('server has started');
 })
 
 
-const filePath: string = 'src/celeb_names1.csv';
-const names: string[] = [];
-
-fs.createReadStream(filePath)
-  .pipe(csvParser())
-  .on('data', (row: { NAME: string }) => {
-    names.push(row.NAME);
-  })
-  .on('end', () => {
-    console.log(`✅ Loaded ${names.length} celebrity names`);
-  });
