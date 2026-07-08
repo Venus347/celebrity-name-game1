@@ -18,16 +18,30 @@ const names: string[] = [];
 const app = express();
 const PORT = 3000;
 
-// Load celebrity names from CSV
-const filePath: string = 'src/celeb_names1.csv';
-fs.createReadStream(filePath)
-  .pipe(csvParser())
-  .on('data', (row: { NAME: string }) => {
-    names.push(row.NAME);
-  })
-  .on('end', () => {
-    console.log(`✅ Loaded ${names.length} celebrity names`);
-  });
+// ============================================
+// LOAD CELEBRITY NAMES FROM JSON FILE
+// ============================================
+// Jacob replaced the CSV with a JSON file, so we read the JSON instead.
+// The JSON file is 'celeb_names.json' in the api/ folder.
+
+// Step 1: Define the path to the JSON file
+const jsonPath: string = 'celeb_names.json';
+
+// Step 2: Read the file synchronously (blocking, but fine for startup)
+const jsonData = fs.readFileSync(jsonPath, 'utf8');
+
+// Step 3: Parse the JSON string into a JavaScript array
+// The JSON structure is an array of objects, each with a "name" property
+const jsonNames = JSON.parse(jsonData);
+
+// Step 4: Loop through each item and push the name into the names array
+// This matches the original CSV behavior where we had a list of names
+jsonNames.forEach((item: { name: string }) => {
+  names.push(item.name);
+});
+
+// Step 5: Log how many names were loaded (so you know it worked)
+console.log(`✅ Loaded ${names.length} celebrity names from JSON`);
 
 // Database setup
 const adapter = new PrismaPg({
