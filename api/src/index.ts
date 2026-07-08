@@ -1,84 +1,70 @@
+// api/src/index.ts
+// Main server file — mounts all route handlers
+
 import "dotenv/config";
 import express from "express";
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import fs from 'fs';
+import csvParser from 'csv-parser';
 
-//Imports celebrity names from a json file and maps them onto an array
-const filePath: string = 'celeb_names.json';
-const a = fs.readFileSync(filePath, 'utf8');
-interface celeb{
-  name: string;
-}
-const data: celeb = JSON.parse(a);
-const output = Object.values(data).map(x => x);
-const names: string[] = output.map(x => x.name);
-console.log(names[0]);
+// Import route handlers
+import gamesRouter from './routes/games.js';
+import playersRouter from './routes/players.js';
 
+// Array to store celebrity names (loaded from CSV)
+const names: string[] = [];
 
-const app = express(); 
+const app = express();
+const PORT = 3000;
+
+// Load celebrity names from CSV
+const filePath: string = 'src/celeb_names1.csv';
+fs.createReadStream(filePath)
+  .pipe(csvParser())
+  .on('data', (row: { NAME: string }) => {
+    names.push(row.NAME);
+  })
+  .on('end', () => {
+    console.log(`✅ Loaded ${names.length} celebrity names`);
+  });
+
+// Database setup
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL,
 });
-const prisma = new PrismaClient({adapter});
+const prisma = new PrismaClient({ adapter });
+
+// Middleware
 app.use(express.json());
-const PORT = 3000;
 
+// ============================================
+// Mount route handlers
+// ============================================
 
-function getRoomCode() {
-  let roomID = "Room_";
-  for (let i = 0; i < 7;i++){
-    roomID += String(Math.floor(Math.random()*10));
-  }
-  return roomID;
-}
+// All game routes (prefixed with /api)
+app.use('/api', gamesRouter);
 
-function getPlayerID(){
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  let playerID = "";
-  for (let i = 0; i<7; i++){
-    playerID += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return playerID;
-}
-function getCelebName() {
-  return names[Math.floor(Math.random() * names.length)];
-};
+// All player routes (prefixed with /api)
+app.use('/api', playersRouter);
 
-
-app.post('/games', async (req, res) => {
-  try{
-    const player_id = getPlayerID();
-    const room_code = getRoomCode();
-    const celeb_name = getCelebName();
-    let players : string[] = [];
-    players.push(player_id)
-
-    const game = await prisma.game.create({
-      data: {
-        roomCode: room_code,
-        currentName: celeb_name,
-        players: players
-      }
-    })
-    return res.json(game);
-  } catch(error){
-    if (error instanceof Error){
-      console.log(error.message);
-    }
-    return res.status(500).json({
-      message: "Error: failed to start game.",
-    })
-  }
-});
-app.get('/games/join/:room_id', async (req, res) => {
-  const room = String(req.params.room_id);
-  
+// ============================================
+// Root route
+// ============================================
+app.get('/', (req, res) => {
+  res.json({ message: 'Celebrity Name Chain API is running' });
 });
 
+// ============================================
+// Health check
+// ============================================
+app.get('/health', (req, res) => {
+  res.json({ ok: true });
+});
 
+// ============================================
+// Start server
+// ============================================
 app.listen(PORT, () => {
-  console.log('server has started');
-})
-
-
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});
