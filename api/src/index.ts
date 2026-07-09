@@ -3,6 +3,7 @@
 
 import "dotenv/config";
 import express from "express";
+import cors from 'cors';  // Add this at the top with other imports
 import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import fs from 'fs';
@@ -51,6 +52,7 @@ const prisma = new PrismaClient({ adapter });
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // ============================================
 // Mount route handlers

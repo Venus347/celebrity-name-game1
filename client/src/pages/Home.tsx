@@ -1,29 +1,48 @@
+// ============================================
+// Home.tsx — Celebrity Name Chain
+// ============================================
+// This is the landing page. Users can:
+// 1. Enter a username
+// 2. Create a new game room
+// 3. Join an existing game room using a room code
+
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonInput, IonItem, IonText } from '@ionic/react';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 const Home: React.FC = () => {
   const history = useHistory();
+
   const [username, setUsername] = useState('');
   const [roomCode, setRoomCode] = useState('');
   const [createdRoomCode, setCreatedRoomCode] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
 
+  // Helper function to generate a random room code
+  const generateRoomCode = () => {
+    return Math.random().toString(36).substring(2, 8).toUpperCase();
+  };
+
+  // ============================================
+  // CREATE ROOM — POST /api/games
+  // ============================================
   const createRoom = async () => {
     if (!username.trim()) {
       alert('Please enter a username first.');
       return;
     }
-// Used AI to create setIsCreating and setIsJoining states to manage loading states for creating and joining rooms.
+
     setIsCreating(true);
 
+    // Generate a room code (or let the backend do it)
+    const newRoomCode = generateRoomCode();
+
     try {
-      // Edited the fetch to connect to the backend properly - Julio
       const response = await fetch('http://localhost:3000/api/games', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username }),
+        body: JSON.stringify({ roomCode: newRoomCode }),
       });
 
       if (!response.ok) {
@@ -31,9 +50,10 @@ const Home: React.FC = () => {
       }
 
       const data = await response.json();
-      const generatedRoomCode = data.roomCode ?? '';
+      const generatedRoomCode = data.roomCode ?? newRoomCode;
       setCreatedRoomCode(generatedRoomCode);
       setRoomCode(generatedRoomCode);
+
       history.push('/game', { username, roomCode: generatedRoomCode, isHost: true });
     } catch (error) {
       console.error('Error creating room:', error);
@@ -43,27 +63,31 @@ const Home: React.FC = () => {
     }
   };
 
+  // ============================================
+  // JOIN ROOM — POST /api/players
+  // ============================================
   const joinRoom = async () => {
     if (!username.trim() || !roomCode.trim()) {
       alert('Please enter both your username and a room code.');
       return;
     }
-// Used AI to create setIsJoining state to manage loading state for joining a room.
+
     setIsJoining(true);
 
     try {
-      // Edited the fetch to connect to the backend properly - Julio
       const response = await fetch(`http://localhost:3000/api/players`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roomCode: roomCode.trim(), username })
+        body: JSON.stringify({ roomCode: roomCode.trim(), username }),
       });
+
       if (!response.ok) {
         throw new Error('Failed to join the room.');
       }
 
       const data = await response.json();
       console.log('Joined room:', data);
+
       history.push('/game', { username, roomCode: roomCode.trim(), isHost: false });
     } catch (error) {
       console.error('Error joining room:', error);
@@ -103,11 +127,11 @@ const Home: React.FC = () => {
             onIonInput={(e) => setRoomCode(e.detail.value ?? '')}
           />
         </IonItem>
-        {/* Used AI to implement the isCreating state and createRoom function to allow users to create a room with a unique room code. */}
+
         <IonButton onClick={createRoom} expand="block" type="button" disabled={isCreating}>
           {isCreating ? 'Creating room...' : 'Create Room'}
         </IonButton>
-       {/* Used Ai to implement the IsJooining and Joining room Function to allow users to join a room with a room code. */}
+
         <IonButton onClick={joinRoom} expand="block" type="button" disabled={isJoining}>
           {isJoining ? 'Joining room...' : 'Join Room'}
         </IonButton>
