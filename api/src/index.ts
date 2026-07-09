@@ -4,7 +4,7 @@ import { PrismaClient } from "./generated/prisma/client.js";
 import { PrismaPg } from "@prisma/adapter-pg";
 import fs from 'fs';
 
-
+//for teammates: use tanstack query to connect api calls to frontend 
 //Imports celebrity names from a json file and maps them onto an array
 const filePath: string = 'celeb_names.json';
 const a = fs.readFileSync(filePath, 'utf8');
