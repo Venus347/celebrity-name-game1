@@ -79,7 +79,6 @@ app.get('/games/:room_id', async (req, res) => {
   const room = String(req.params.room_id);
   const find_room = await prisma.game.findUnique({where : {roomCode: room}});
   
-  
   if (find_room == null){
     console.log("Room not found.")
     return res.send("Room not found");
