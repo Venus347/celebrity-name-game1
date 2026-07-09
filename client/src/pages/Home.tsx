@@ -19,7 +19,8 @@ const Home: React.FC = () => {
     setIsCreating(true);
 
     try {
-      const response = await fetch('http://localhost:3000/games', {
+      // Edited the fetch to connect to the backend properly - Julio
+      const response = await fetch('http://localhost:3000/api/games', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username }),
@@ -51,7 +52,12 @@ const Home: React.FC = () => {
     setIsJoining(true);
 
     try {
-      const response = await fetch(`http://localhost:3000/games/join/${roomCode.trim()}`);
+      // Edited the fetch to connect to the backend properly - Julio
+      const response = await fetch(`http://localhost:3000/api/players`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roomCode: roomCode.trim(), username })
+      });
       if (!response.ok) {
         throw new Error('Failed to join the room.');
       }
